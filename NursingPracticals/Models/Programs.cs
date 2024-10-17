@@ -110,6 +110,9 @@ namespace NursingPracticals.Models
         [StringLength(120, MinimumLength = 3)]
         public required string FullName { get; set; }
 
+        [StringLength(200)]
+        public string? ImageUrl { get; set; }
+
         [DefaultValue(false)]
         public bool IsActive{ get; set; }
 

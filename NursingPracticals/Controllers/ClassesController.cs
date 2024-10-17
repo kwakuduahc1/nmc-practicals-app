@@ -21,20 +21,24 @@ namespace NursingPracticals.Controllers
             return classes is null ? NotFound(new { Message = "The class was not found" }) : Ok(classes);
         }
 
-        //[HttpGet("Students/{id:int:required}")]
-        //public async Task<IEnumerable> Details(int id)
-        //{
-        //    var qry = """
-        //        SELECT s.studentid, s.indexnumber, s.mainclassesid, s.fullname
-        //        FROM students s 
-        //        WHERE s.mainclassesid = @id AND s.isactive = False;
-        //        SELECT s.fullname, s.indexnumber, s.mainclassesid, s.studentid
-        //        FROM students s 
-        //        WHERE s.mainclassesid = @id AND s.isactive = False
-        //        """;
-        //    var res = await db.Database.GetDbConnection().QueryMultipleAsync(qry, new { id });
-
-        //}
+        [HttpGet("Students/{id:int:required}")]
+        public async Task<IActionResult> Details(int id)
+        {
+            var qry = """
+                SELECT mainclassesid, classname, programsid
+                FROM mainclasses
+                WHERE mainclassesid = @id
+                SELECT s.fullname, s.indexnumber, s.mainclassesid, s.studentid
+                FROM students s 
+                WHERE s.mainclassesid = @id AND s.isactive = True
+                """;
+            var res = await db.Database.GetDbConnection().QueryMultipleAsync(qry, new { id });
+            var cls = await res.ReadAsync<MainClasses>();
+            if (!cls.Any())
+                return BadRequest(new { Message = "The class was not found" });
+            var std = await res.ReadAsync<Students>();
+            return Ok(new {Class =  cls, Students = std });
+        }
 
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] AddMainClassModel addMain)

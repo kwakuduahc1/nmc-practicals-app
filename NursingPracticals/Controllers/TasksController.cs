@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using NursingPracticals.Contexts;
 using NursingPracticals.Mappers;
 using NursingPracticals.Models;
-using System;
 using System.Collections;
 
 namespace NursingPracticals.Controllers
