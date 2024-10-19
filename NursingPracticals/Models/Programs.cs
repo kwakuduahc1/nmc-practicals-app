@@ -68,7 +68,7 @@ namespace NursingPracticals.Models
         public required string StepName { get; set; }
 
         [Required]
-        public int ComponentTasksID { get; set; }
+        public short ComponentTasksID { get; set; }
 
         public virtual ComponentTasks? ComponentTasks { get; set; }
     }
@@ -116,7 +116,7 @@ namespace NursingPracticals.Models
         [DefaultValue(false)]
         public bool IsActive{ get; set; }
 
-        public virtual ICollection<Results>? Results { get; set; }
+        public virtual ICollection<Exams>? Exams { get; set; }
     }
 
     public class ClassSchedules
@@ -135,16 +135,32 @@ namespace NursingPracticals.Models
         public required DateTime ExamDate { get; set; }
     }
 
-    public class Results
+    public class TeacherSchedules
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int ResultsID { get; set; }
+        public int TeacherSchedulesID { get; set; }
+
+        [Required]
+        public required string Tutor { get; set; }
+
+        public required string ClassName { get; set; }
+
+        [Required]
+        public int ClassSchedulesID { get; set; }
+
+        [Required]
+        public IEnumerable<StudentsSchedules> StudentsSchedules { get; set; } = [];
+
+    }
+
+    public class StudentsSchedules
+    {
 
         [Required]
         public int StudentsID { get; set; }
 
         [Required]
-        public int ClassSchedulesID { get; set; }
+        public required string FullName { get; set; }
     }
 
     public class Exams
@@ -153,12 +169,26 @@ namespace NursingPracticals.Models
         public int ExamsID { get; set; }
 
         [Required]
-        public int ResultsID { get; set; }
+        public int TeacherSchedulesID { get; set; }
 
         [Required]
+        public short ComponentTasksID { get; set; }
+
+        public IEnumerable<Scores> Scores { get; set; } = [];
+
+        [Required]
+        [Range(0,4)]
+        public byte Score { get; set; }
+
+        public virtual ComponentTasks? ComponentTasks { get; set; }
+
+        public virtual Students? Students { get; set; }
+    }
+
+    public class Scores
+    {
         public int StepsID { get; set; }
 
-        [Required]
-        public double Score { get; set; }
+        public byte Score { get; set; }
     }
 }

@@ -20,6 +20,10 @@ namespace NursingPracticals.Contexts
 
         public virtual DbSet<ClassSchedules> ClassSchedules { get; set; }
 
+        public virtual DbSet<TeacherSchedules> TeacherSchedules { get; set; }
+
+        public virtual DbSet<Exams> Exams { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             base.OnConfiguring(optionsBuilder);
@@ -33,10 +37,15 @@ namespace NursingPracticals.Contexts
                 new Programs { ProgramName = "Post-NAC/NAP Midwifery", ProgramsID = 3, }));
 
             builder.Entity<TaskGroups>(x => x.HasData(
-                new TaskGroups { GroupName = "Public Health", Programs = [1, 2], TaskGroupsID = 1 },
+                new TaskGroups { GroupName = "Home Visit", Programs = [1, 2], TaskGroupsID = 1 },
                 new TaskGroups { GroupName = "General Nursing", Programs = [1, 3], TaskGroupsID = 2 },
-                new TaskGroups { GroupName = "Midwifery", Programs = [3], TaskGroupsID = 3 }
+                new TaskGroups { GroupName = "Midwifery", Programs = [3], TaskGroupsID = 3 },
+                new TaskGroups { GroupName = "Child Welfare Clinic", Programs = [1, 2], TaskGroupsID = 4 }
                 ));
+
+            builder.Entity<TeacherSchedules>(x => x.OwnsMany(m => m.StudentsSchedules, s => s.ToJson()));
+
+            builder.Entity<Exams>(x => x.OwnsMany(m => m.Scores, s => s.ToJson()));
 
             foreach (var entity in builder.Model.GetEntityTypes())
             {

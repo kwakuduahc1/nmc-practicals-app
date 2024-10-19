@@ -141,7 +141,7 @@ namespace NursingPracticals.Models
         public required string StepName { get; set; }
 
         [Required]
-        public int ComponentTasksID { get; set; }
+        public short ComponentTasksID { get; set; }
     }
 
     public class EditComponentTaskModel
