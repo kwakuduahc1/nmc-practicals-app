@@ -1,4 +1,6 @@
 ﻿using Dapper;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -6,11 +8,14 @@ using NursingPracticals.Contexts;
 using NursingPracticals.Mappers;
 using NursingPracticals.Models;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace NursingPracticals.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Policy = "Administrators")]
+    [EnableCors("bStudioApps")]
     public class StudentsController(DbContextOptions<ApplicationDbContext> options, CancellationToken token) : ControllerBase
     {
         private readonly ApplicationDbContext db = new(options);
@@ -21,7 +26,7 @@ namespace NursingPracticals.Controllers
             return await db.Students.Where(x => x.MainClassesID == id && x.IsActive)
                 .Select(x => new
                 {
-                    x.StudentID,
+                    x.StudentsID,
                     x.IndexNumber,
                     x.FullName,
                 }).ToArrayAsync();
@@ -30,10 +35,23 @@ namespace NursingPracticals.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] AddStudentModel[] students)
         {
-            for (int i = 0; i < students.Length; i++)
-                db.Add(new StudentsMapper().FromAddModel(students[i]));
+            if (students.Length == 0)
+                return BadRequest(new { Message = "Empty students list" });
+            var ids = await db.Database.GetDbConnection().QueryAsync("""
+                SELECT indexnumber 
+                FROM students 
+                WHERE indexnumber = ANY(ARRAY[@ids]);
+                """, new { ids = students.Select(x => x.IndexNumber).ToArray() });
+            if (ids.Any())
+                return BadRequest(new { ids });
+            List <Students> stds = new(students.Length);
+            var map = new StudentsMapper();
+            foreach (var std in students)
+                stds.Add(map.FromAddModel(std));
+            stds.ForEach(x=>x.IsActive = true);
+            db.Students.AddRange(stds);
             await db.SaveChangesAsync(token);
-            return Ok();
+            return Ok(stds);
         }
 
         [HttpPut]

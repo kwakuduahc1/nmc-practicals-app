@@ -30,19 +30,16 @@ namespace NursingPracticals
                     .UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
                 }).UseLowerCaseNamingConvention();
             });
-
+            Console.WriteLine(builder.Configuration.GetSection("AppFeatures").GetSection("SigningKey").Value);
             builder.Services.AddIdentity<ApplicationUsers, IdentityRole>(x =>
             {
-                x.SignIn.RequireConfirmedAccount = true;
-                x.SignIn.RequireConfirmedEmail = true;
-                x.Lockout.AllowedForNewUsers = true;
                 x.Password.RequiredLength = 8;
                 x.Password.RequireNonAlphanumeric = true;
                 x.Password.RequireDigit = true;
                 x.Password.RequireUppercase = true;
                 x.Password.RequireLowercase = true;
-                x.Tokens.AuthenticatorTokenProvider = "4Hy3ORZgRwe64{z0rC8L]J0x-KN8ZBeT";
-                x.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(10);
+                x.Tokens.AuthenticatorTokenProvider = builder.Configuration.GetSection("AppFeatures").GetSection("ProviderKey").Value!;
+                x.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(30);
             }).AddEntityFrameworkStores<ApplicationDbContext>();
             builder.Services.AddSingleton<IAppFeatures, AppFeatures>();
             builder.Services.AddAuthorizationBuilder()
@@ -66,11 +63,12 @@ namespace NursingPracticals
                 x.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetSection("AppFeatures").GetSection("SigningKey").Value)),
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetSection("AppFeatures").GetSection("Key").Value)),
                     ValidateIssuer = true,
                     RequireExpirationTime = true,
                     ValidateAudience = true,
                     ValidateLifetime = true,
+                    IncludeTokenOnFailedValidation = true,
                     IgnoreTrailingSlashWhenValidatingAudience = true,
                     ValidIssuer = builder.Configuration!.GetSection("AppFeatures").GetSection("Issuer").Value!,
                     ValidAudience = builder.Configuration.GetSection("AppFeatures").GetSection("Audience").Value

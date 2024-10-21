@@ -1,4 +1,6 @@
 ﻿using Dapper;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NursingPracticals.Contexts;
@@ -8,8 +10,10 @@ using System.Collections;
 
 namespace NursingPracticals.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]/")]
     [ApiController]
+    [EnableCors("bStudioApps")]
+    [Authorize(Policy = "Administrators")]
     public class ClassesController(DbContextOptions<ApplicationDbContext> options, CancellationToken token) : ControllerBase
     {
         private readonly ApplicationDbContext db = new(options);
@@ -24,26 +28,33 @@ namespace NursingPracticals.Controllers
         [HttpGet("Students/{id:int:required}")]
         public async Task<IActionResult> Details(int id)
         {
+            var cls = await db.MainClasses.FindAsync(id);
+            if (cls is null)
+                return BadRequest(new { Message = "The class does not exist" });
             var qry = """
-                SELECT mainclassesid, classname, programsid
-                FROM mainclasses
-                WHERE mainclassesid = @id
                 SELECT s.fullname, s.indexnumber, s.mainclassesid, s.studentid
                 FROM students s 
-                WHERE s.mainclassesid = @id AND s.isactive = True
+                WHERE s.mainclassesid = @id AND s.isactive = True;
+                SELECT classschedulesid, schedulename, examdate, mainclassesid, classname, isactive
+                FROM vw_class_schedules;
+                SELECT taskgroupsid, groupname
+                FROM taskgroups
+                WHERE array_positions(programs, @pid) <> '{}'
                 """;
-            var res = await db.Database.GetDbConnection().QueryMultipleAsync(qry, new { id });
-            var cls = await res.ReadAsync<MainClasses>();
-            if (!cls.Any())
+            var res = await db.Database.GetDbConnection().QueryMultipleAsync(qry, new { id, pid = cls.ProgramsID });
+            if (cls is null)
                 return BadRequest(new { Message = "The class was not found" });
-            var std = await res.ReadAsync<Students>();
-            return Ok(new {Class =  cls, Students = std });
+            var std = await res.ReadAsync<EditStudentModel>();
+            var schs = await res.ReadAsync<ClassScheduleVm>();
+            var groups = await res.ReadAsync<TaskGroupsVm>();
+            return Ok(new { Class = new { cls.MainClassesID, cls.ProgramsID, cls.ClassName }, Students = std, Schedules = schs, groups });
         }
 
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] AddMainClassModel addMain)
         {
             var p = new ClassesMappers().AddClass(addMain);
+            p.ClassStatus = true;
             db.MainClasses.Add(p);
             await db.SaveChangesAsync(token);
             return Ok(p);

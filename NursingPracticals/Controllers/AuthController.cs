@@ -1,15 +1,12 @@
-﻿using EduApp.Controllers.Helpers;
-using EduApp.Mappers;
+﻿using EduApp.Mappers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NursingPracticals.Contexts;
-using NursingPracticals.Mappers;
-using NursingPracticals.Models;
+using NursingPracticals.Controllers.Helpers;
 using NursingPracticals.Models.AuthVm;
-using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 
@@ -37,12 +34,12 @@ namespace NursingPracticals.Controllers
                 return Unauthorized();
             await _signInManager.SignInAsync(_user, false);
             var claims = await _userManager.GetClaimsAsync(_user);
-            var token = new AuthHelper(claims, app).Key;
+            var token = new AuthHelper(claims, app).GetKey();
             return Ok(new { Token = token });
         }
 
         [HttpPost("Register")]
-        [Authorize(Policy = "Administrators")]
+        //[Authorize(Policy = "Administrators")]
         public async Task<IActionResult> Register([FromBody] RegisterVm reg, CancellationToken token)
         {
             if (reg.Password != reg.ConfirmPassword)
@@ -55,13 +52,13 @@ namespace NursingPracticals.Controllers
             await _userManager.AddClaimAsync(user, new Claim("UsersID", user.Id));
             await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Name, user.UserName));
             await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, "User"));
-            await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Email, reg.Email));
+            //await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Email, reg.Email));
             await _userManager.AddClaimAsync(user, new Claim("FullName", reg.FullName));
-            await _userManager.SetEmailAsync(user, reg.Email);
+            //await _userManager.SetEmailAsync(user, reg.Email);
             user.EmailConfirmed = true;
             user.LockoutEnabled = false;
             await db.SaveChangesAsync(token);
-            return Created("", new { user.UserName, user.Email, user.Id });
+            return Created("", new { user.UserName, user.Id });
         }
 
        

@@ -20,18 +20,18 @@ namespace NursingPracticals.Models.AuthVm
         [StringLength(50, MinimumLength = 5)]
         public required string FullName { get; set; }
 
-        [Required]
-        [DataType(DataType.EmailAddress)]
-        [StringLength(75, MinimumLength = 5)]
-        public required string Email { get; set; }
+        //[Required]
+        //[DataType(DataType.EmailAddress)]
+        //[StringLength(75, MinimumLength = 5)]
+        //public required string Email { get; set; }
 
-        [DataType(DataType.PhoneNumber)]
-        [StringLength(30)]
-        public required string PhoneNumber { get; set; }
+        //[DataType(DataType.PhoneNumber)]
+        //[StringLength(30)]
+        //public required string PhoneNumber { get; set; }
 
         [Required]
         [StringLength(15, MinimumLength = 5)]
-        [AllowedValues(["Tutor", "Student", "Administrator"])]
+        [AllowedValues(["Tutor", "Coordinator", "Administrator"])]
         public required string Role { get; set; }
     }
 }

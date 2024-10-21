@@ -1,5 +1,6 @@
 ﻿using Dapper;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NursingPracticals.Contexts;
@@ -9,8 +10,10 @@ using System.Collections;
 
 namespace NursingPracticals.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]/")]
     [ApiController]
+    [EnableCors("bStudioApps")]
+    [Authorize(Policy = "Administrators")]
     public class ProgramsController(DbContextOptions<ApplicationDbContext> options, CancellationToken token) : ControllerBase
     {
         private readonly ApplicationDbContext db = new(options);
@@ -19,10 +22,13 @@ namespace NursingPracticals.Controllers
         public async Task<IEnumerable> List()
         {
             var qry = """
-                SELECT p.programsid, p.programname, c.mainclassesid, c.classname 
+                SELECT p.programsid, p.programname, m.mainclassesid, m.classname 
                 FROM programs p 
-                INNER JOIN mainclasses c ON c.programsid = p.programsid
-                WHERE c.classstatus = True
+                FULL JOIN(
+                    SELECT m.mainclassesid, m.classname, m.programsid
+                    FROM mainclasses m
+                    WHERE m.classstatus = True
+                ) m ON m.programsid = p.programsid
                 """;
             var prog = await db.Database.GetDbConnection().QueryAsync<ProgramsVM>(qry);
             return prog.GroupBy(x => new { x.ProgramsID, x.ProgramName }, (k, v) => new

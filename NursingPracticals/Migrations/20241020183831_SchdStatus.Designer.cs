@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using NursingPracticals.Contexts;
@@ -11,9 +12,11 @@ using NursingPracticals.Contexts;
 namespace NursingPracticals.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241020183831_SchdStatus")]
+    partial class SchdStatus
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -374,9 +377,9 @@ namespace NursingPracticals.Migrations
                         .HasColumnType("smallint")
                         .HasColumnName("score");
 
-                    b.Property<int?>("StudentsID")
+                    b.Property<int?>("StudentsStudentID")
                         .HasColumnType("integer")
-                        .HasColumnName("studentsid");
+                        .HasColumnName("studentsstudentid");
 
                     b.Property<int>("TeacherSchedulesID")
                         .HasColumnType("integer")
@@ -387,7 +390,7 @@ namespace NursingPracticals.Migrations
 
                     b.HasIndex("ComponentTasksID");
 
-                    b.HasIndex("StudentsID");
+                    b.HasIndex("StudentsStudentID");
 
                     b.ToTable("exams", (string)null);
                 });
@@ -490,12 +493,12 @@ namespace NursingPracticals.Migrations
 
             modelBuilder.Entity("NursingPracticals.Models.Students", b =>
                 {
-                    b.Property<int>("StudentsID")
+                    b.Property<int>("StudentID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
-                        .HasColumnName("studentsid");
+                        .HasColumnName("studentid");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("StudentsID"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("StudentID"));
 
                     b.Property<string>("FullName")
                         .IsRequired()
@@ -522,7 +525,7 @@ namespace NursingPracticals.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("mainclassesid");
 
-                    b.HasKey("StudentsID")
+                    b.HasKey("StudentID")
                         .HasName("pk_students");
 
                     b.ToTable("students", (string)null);
@@ -715,8 +718,8 @@ namespace NursingPracticals.Migrations
 
                     b.HasOne("NursingPracticals.Models.Students", "Students")
                         .WithMany("Exams")
-                        .HasForeignKey("StudentsID")
-                        .HasConstraintName("fk_exams_students_studentsid");
+                        .HasForeignKey("StudentsStudentID")
+                        .HasConstraintName("fk_exams_students_studentsstudentid");
 
                     b.OwnsMany("NursingPracticals.Models.Scores", "Scores", b1 =>
                         {

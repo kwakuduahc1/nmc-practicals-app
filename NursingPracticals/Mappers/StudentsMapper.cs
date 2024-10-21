@@ -37,4 +37,10 @@ namespace NursingPracticals.Mappers
     {
         public partial ComponentTasks AddTasks(AddComponentTasks task);
     }
+    
+    [Mapper]
+    public partial class ClassScheduleMappers
+    {
+        public partial ClassSchedules AddSchedule(AddClassScheduleModel schedule);
+    }
 }

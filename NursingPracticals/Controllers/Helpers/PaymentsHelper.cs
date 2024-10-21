@@ -1,6 +1,6 @@
 ﻿using System.Security.Cryptography;
 
-namespace EduApp.Controllers.Helpers
+namespace NursingPracticals.Controllers.Helpers
 {
     public static class PaymentsHelper
     {

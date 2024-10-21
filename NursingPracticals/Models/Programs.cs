@@ -31,6 +31,8 @@ namespace NursingPracticals.Models
         public required int[] Programs { get; set; }
 
         public virtual ICollection<ComponentTasks>? ComponentTasks { get; set; }
+
+        public virtual ICollection<ClassSchedules>? ClassSchedules { get; set; }
     }
 
     public class ComponentTasks
@@ -97,7 +99,7 @@ namespace NursingPracticals.Models
     public class Students
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int StudentID { get; set; }
+        public int StudentsID { get; set; }
 
         [Required]
         [StringLength(20, MinimumLength = 3)]
@@ -125,7 +127,13 @@ namespace NursingPracticals.Models
         public int ClassSchedulesID { get; set; }
 
         [Required]
-        public required string ComponentTasksID { get; set; }
+        public required int TaskGroupsID{ get; set; }
+
+        [Required]
+        public required int MainClassesID { get; set; }
+
+        [DefaultValue(true)]    
+        public bool IsActive{ get; set; }
 
         [Required]
         [StringLength(75)]
@@ -133,6 +141,10 @@ namespace NursingPracticals.Models
 
         [Required]
         public required DateTime ExamDate { get; set; }
+
+        public virtual TaskGroups? TaskGroups { get; set; }
+
+        public virtual MainClasses? MainClasses { get; set; }
     }
 
     public class TeacherSchedules
@@ -149,7 +161,7 @@ namespace NursingPracticals.Models
         public int ClassSchedulesID { get; set; }
 
         [Required]
-        public IEnumerable<StudentsSchedules> StudentsSchedules { get; set; } = [];
+        public ICollection<StudentsSchedules> StudentsSchedules { get; set; } = [];
 
     }
 
@@ -161,6 +173,9 @@ namespace NursingPracticals.Models
 
         [Required]
         public required string FullName { get; set; }
+
+        [Required]
+        public required string IndexNumber {  get; set; }
     }
 
     public class Exams

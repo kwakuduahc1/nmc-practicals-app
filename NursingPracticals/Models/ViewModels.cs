@@ -31,6 +31,16 @@ namespace NursingPracticals.Models
         public short ProgramsID { get; set; }
     }
 
+    public class ViewClassModel
+    {
+        public int MainClassesID { get; set; }
+
+        public required string ClassName { get; set; }
+
+        public int ProgramsID { get; set; }
+    }
+
+
     public class EditMainClassModel
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -170,4 +180,43 @@ namespace NursingPracticals.Models
         [Required]
         public int ComponentTasksID { get; set; }
     }
+
+    public class AddClassScheduleModel
+    {
+        [Required]
+        public int TaskGroupsID { get; set; }
+
+        [Required]
+        [StringLength(75)]
+        public required string ScheduleName { get; set; }
+
+        [Required]
+        public int MainClassesID { get; set; }
+
+        [Required]
+        public required DateTime ExamDate { get; set; }
+    }
+
+    public class EditClassSchedule
+    {
+        [Required]
+        public int ClassSchedulesID { get; set; }
+
+        [Required]
+        public int MainClassesID { get; set; }
+
+        [Required]
+        public int TaskGroupsID { get; set; }
+
+        [Required]
+        [StringLength(75)]
+        public required string ScheduleName { get; set; }
+
+        [Required]
+        public required DateTime ExamDate { get; set; }
+    }
+
+    public record ClassScheduleVm(int ClassSchedulesID, string ScheduleName, DateTime ExamDate, int MainClassesID, string ClassName, bool IsActive);
+
+    public record TaskGroupsVm(int TaskGroupsID, string GroupName);
 }
